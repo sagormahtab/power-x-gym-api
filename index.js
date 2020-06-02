@@ -38,6 +38,25 @@ app.get('/classes', (req, res) => {
     });
 })
 
+app.get('/pricing', (req, res) => {
+
+    client = new MongoClient(uri, { useNewUrlParser: true });
+    client.connect(err => {
+    const collection = client.db("power-x-gym").collection("pricing");
+    collection.find().toArray((err, documents) => {
+        if(err){
+            console.log(err);
+            res.status(500).send({message:err})
+            
+        }
+        else{
+            res.send(documents)
+        }
+    })
+    client.close();
+    });
+})
+
 
 //POST
 app.post('/addClasses', (req, res) => {
@@ -47,6 +66,26 @@ app.post('/addClasses', (req, res) => {
     client.connect(err => {
     const collection = client.db("power-x-gym").collection("classes");
     collection.insertOne(items, (err, result) => {
+        if(err){
+            console.log(err);
+            res.status(500).send({message:err})
+            
+        }
+        else{
+            res.send(result.ops[0])
+        }
+    })
+    client.close();
+    });
+})
+
+app.post('/addPricing', (req, res) => {
+    const items = req.body
+
+    client = new MongoClient(uri, { useNewUrlParser: true });
+    client.connect(err => {
+    const collection = client.db("power-x-gym").collection("pricing");
+    collection.insert(items, (err, result) => {
         if(err){
             console.log(err);
             res.status(500).send({message:err})
