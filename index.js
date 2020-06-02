@@ -99,4 +99,24 @@ app.post('/addPricing', (req, res) => {
     });
 })
 
+app.post('/addUser', (req, res) => {
+    const items = req.body
+
+    client = new MongoClient(uri, { useNewUrlParser: true });
+    client.connect(err => {
+    const collection = client.db("power-x-gym").collection("users");
+    collection.insertOne(items, (err, result) => {
+        if(err){
+            console.log(err);
+            res.status(500).send({message:err})
+            
+        }
+        else{
+            res.send(result.ops[0])
+        }
+    })
+    client.close();
+    });
+})
+
 app.listen(port, () => console.log(` Server listening at port: ${port}`))
