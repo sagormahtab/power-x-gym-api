@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+
+<body>
+    <h1>My Node and Mongo db site</h1>
+    <p id="userName"></p>
+    <div class="container">
+        <div class="row">
+            <input type="text" class="form-control" placeholder="id" id="id">
+            <input type="text" class="form-control" placeholder="Image Link" id="img-link">
+            <input type="text" class="form-control" placeholder="Title" id="title">
+            <button class="btn btn-primary" id="addProduct">Add Product</button>
+        </div>
+        <p style="display: none; color: green;" id="successMessage">
+            <small>Product Added Successfully</small></p>
+        <ul id="product-list">
+
+        </ul>
+    </div>
+
+    <script>
+        //get data
+        fetch('http://localhost:4200/classes')
+            .then(res => res.json())
+            .then(data => {
+                displayProducts(data);
+                //document.getElementById("userName").innerText = data.name;
+            });
+
+            function displayProducts(data){
+                const productContainer = document.getElementById('product-list');
+                for (let i = 0; i < data.length; i++) {
+                    const product = data[i];
+                    appendProduct(product, productContainer);
+                }
+            }
+            function appendProduct(product, productContainer){
+                const item = document.createElement('li');
+                item.innerText = `${product.id}:${product.img}:available:${product.title}`;
+                productContainer.appendChild(item);
+            }
+
+        //POST data to the server
+        const btnAddUser = document.getElementById('addProduct');
+        btnAddUser.addEventListener('click', ()=>{
+            const id = document.getElementById('id').value;
+            const img = document.getElementById('img-link').value;
+            const title = document.getElementById('title').value;
+            const product = {id,img,title};//object destructuring. We could also use {name: name}. That would be same.
+            console.log(product);
+            
+            //post
+            fetch('http://localhost:4200/addClasses',{
+                method: 'POST',
+                body: JSON.stringify(product),
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8",
+                }
+            })
+            .then(res=>res.json())
+            .then(data =>{
+                updateProduct(data)
+                //clean
+                document.getElementById('id').value='';
+                document.getElementById('img-link').value='';
+                document.getElementById('title').value='';
+
+                //show success message
+                const success = document.getElementById("successMessage");
+                success.style.display = "block";
+                setTimeout(()=>{
+                    success.style.display = "none";
+                },5000)
+            })
+        })
+        
+        function updateProduct(product){
+            const productContainer = document.getElementById('product-list');
+            appendProduct(product, productContainer);
+            document.getElementById('userName').innerText = product.name;
+        }
+    </script>
+</body>
+
+</html>
